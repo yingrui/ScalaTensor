@@ -85,7 +85,7 @@ class TensorArithmeticTest extends FunSuite with Matchers {
     f(Map("x" -> 1)) shouldEqual 10
   }
 
-  test("should create add tensor: x + y * z") {
+  test("should create add tensor: x / 2 + (y - 1) * z") {
     val x = Variable("x")
     val y = Variable("y")
     val z = Variable("z")
