@@ -2,7 +2,11 @@ package me.yingrui.tensor
 
 trait TensorType {
   val name: String
-  def + (right: TensorType): TensorType = ADD(this, right)
+
+  def + (right: TensorType): TensorType = Arithmetic(this, right, "+", (x, y) => x + y)
+  def - (right: TensorType): TensorType = Arithmetic(this, right, "-", (x, y) => x - y)
+  def * (right: TensorType): TensorType = Arithmetic(this, right, "*", (x, y) => x * y)
+  def / (right: TensorType): TensorType = Arithmetic(this, right, "/", (x, y) => x / y)
 }
 
 case class Variable(name: String) extends TensorType
@@ -11,10 +15,10 @@ case class Real(value: Double) extends TensorType {
   val name = value.toString
 }
 
-case class ADD(left: TensorType, right: TensorType) extends TensorType {
-  val name = s"(${left.name} + ${right.name})"
+case class Arithmetic(left: TensorType, right: TensorType, sign: String, op: (Double, Double) => Double) extends TensorType {
+  val name = s"(${left.name} $sign ${right.name})"
   def function(x: Map[String, Double]): Double = {
-    getResult(x, left) + getResult(x, right)
+    op(getResult(x, left), getResult(x, right))
   }
 
   def getResult(x: Map[String, Double], expr: TensorType): Double = {
@@ -33,7 +37,7 @@ object TensorType {
     tensor match {
       case variable: Variable => (x: Map[String, Double]) => x(variable.name)
       case r: Real => (x: Map[String, Double]) => r.value
-      case add: ADD => (x: Map[String, Double]) => add.function(x)
+      case add: Arithmetic => (x: Map[String, Double]) => add.function(x)
     }
   }
 }
